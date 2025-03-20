@@ -7,8 +7,38 @@ import Header from './components/Header';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import AdminDashboard from './screens/AdminDashboard';
+import InstituteDashboard from './screens/InstituteDashboard';
+import StudentDashboard from './screens/StudentDashboard';
+import ContactScreen from './screens/ContactScreen';
+import AboutScreen from './screens/AboutScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import TermsScreen from './screens/TermsScreen';
 import { useTheme } from './context/ThemeContext';
+import { toast } from 'react-hot-toast';
+import { Analytics } from "@vercel/analytics/react"
 
+// Create route components here to preserve existing dashboard logic
+const AdminRouteWrapper = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  return userInfo?.userType === 'admin' ? <AdminDashboard /> : <Navigate to="/login" replace />;
+};
+
+const InstituteRouteWrapper  = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  return userInfo?.userType === 'institute' ? <InstituteDashboard /> : <Navigate to="/login" replace />;
+};
+
+const StudentRouteWrapper = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  return userInfo?.userType === 'student' ? <StudentDashboard /> : <Navigate to="/login" replace />;
+};
+
+const PrivateRouteWrapper = ({ children }) => {
+  const { userInfo } = useSelector((state) => state.auth);
+  return userInfo ? children : <Navigate to="/login" replace />;
+};
 
 const App = () => {
   const { isDarkMode } = useTheme();
@@ -46,10 +76,13 @@ const App = () => {
 
   return (
     <div className={isDarkMode ? 'dark' : ''}>
+      <Analytics />
       <Header />
        <main className="min-h-screen">
         <Routes>
           <Route path="/" element={<HomeScreen />} />
+          <Route path="/about" element={<AboutScreen />} />
+          <Route path="/contact" element={<ContactScreen />} />
           
           {/* Public routes */}
           <Route
@@ -72,6 +105,26 @@ const App = () => {
               )
             }
           />
+
+          {/* Protected routes */}
+          <Route
+            path="/profile"
+            element={
+              <PrivateRouteWrapper>
+                <ProfileScreen />
+              </PrivateRouteWrapper>
+            }
+          />
+
+          {/* Role-specific routes */}
+          <Route path="/admin/dashboard" element={<AdminRouteWrapper />} />
+          <Route path="/institute/dashboard" element={<InstituteRouteWrapper />} />
+          <Route path="/student/dashboard" element={<StudentRouteWrapper />} />
+
+          {/* Add these new routes */}
+          <Route path="/privacy-policy" element={<PrivacyPolicyScreen />} />
+          <Route path="/terms-of-service" element={<TermsScreen />} />
+
           {/* Catch all */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
