@@ -54,31 +54,26 @@ const AboutScreen = () => {
 
   const developers = [
     {
-      name: 'Meet Gangani',
+      name: 'Yash Kakadiya',
       role: 'Full Stack Developer & Deployment Specialist',
-      github: 'https://github.com/MeetGangani',
-      linkedin: 'https://www.linkedin.com/in/meet-gangani-166750254'
+      github: 'https://github.com/YashKakadiya008',
+      linkedin: 'https://www.linkedin.com/in/yash-kakadiya-028599259/'
     },
-{
-      name: 'Abhay Hindocha',
+    {
+      name: 'Jaimin Khunt',
       role: 'Full Stack Developer & Deployment Specialist',
-      github: 'https://github.com/Abhayhindocha',
-      linkedin: 'https://www.linkedin.com/in/hindocha-abhay-48a610268'
+      github: 'https://github.com/notHuman9504/',
+      linkedin: 'https://www.linkedin.com/in/jaimin-khunt/'
     },
 
+
     {
-      name: 'Isha Jivani',
+      name: 'Soham Kansara',
       role: 'Frontend Developer',
-      github: 'https://github.com/ishajivani',
-      linkedin: 'https://www.linkedin.com/in/isha-jivani-012a112b3'
-    },
-    {
-      name: 'Stuti Patel',
-      role: 'Frontend Developer',
-      github: 'https://github.com/stutipatel',
-      linkedin: 'https://www.linkedin.com/in/stuti-ghiyal11060210060000011'
+      github: 'https://github.com/soham-123456',
+      linkedin: 'https://www.linkedin.com/in/soham-kansara-129839269/'
     }
-    
+
   ];
 
   return (
@@ -91,15 +86,13 @@ const AboutScreen = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-20"
           >
-            <h1 className={`text-4xl md:text-5xl font-bold mb-6 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            <h1 className={`text-4xl md:text-5xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>
               About <span className="text-violet-600">NexusEdu</span>
             </h1>
-            <p className={`text-lg max-w-3xl mx-auto ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              A platform designed to simplify online examinations with focus on security 
+            <p className={`text-lg max-w-3xl mx-auto ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              A platform designed to simplify online examinations with focus on security
               and ease of use for both institutions and students.
             </p>
           </motion.div>
@@ -112,19 +105,16 @@ const AboutScreen = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`p-6 rounded-2xl ${
-                  isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-                } shadow-lg`}
+                className={`p-6 rounded-2xl ${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
+                  } shadow-lg`}
               >
                 <div className={`flex items-center mb-4`}>
-                  <div className={`flex justify-center items-center w-12 h-12 rounded-xl ${
-                    isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
-                  } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'} text-2xl`}>
+                  <div className={`flex justify-center items-center w-12 h-12 rounded-xl ${isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
+                    } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'} text-2xl`}>
                     {feature.icon}
                   </div>
-                  <h3 className={`ml-4 text-xl font-semibold ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
+                  <h3 className={`ml-4 text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                     {feature.title}
                   </h3>
                 </div>
@@ -141,9 +131,8 @@ const AboutScreen = () => {
             animate={{ opacity: 1, y: 0 }}
             className="mb-20"
           >
-            <h2 className={`text-3xl font-bold mb-12 text-center ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            <h2 className={`text-3xl font-bold mb-12 text-center ${isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>
               Our Technology
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
@@ -153,19 +142,16 @@ const AboutScreen = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-6 rounded-2xl ${
-                    isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-                  } shadow-lg`}
+                  className={`p-6 rounded-2xl ${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
+                    } shadow-lg`}
                 >
                   <div className={`flex items-center mb-4`}>
-                    <div className={`flex justify-center items-center w-12 h-12 rounded-xl ${
-                      isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
-                    } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'} text-2xl`}>
+                    <div className={`flex justify-center items-center w-12 h-12 rounded-xl ${isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
+                      } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'} text-2xl`}>
                       {tech.icon}
                     </div>
-                    <h3 className={`ml-4 text-xl font-semibold ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}>
+                    <h3 className={`ml-4 text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}>
                       {tech.title}
                     </h3>
                   </div>
@@ -181,21 +167,18 @@ const AboutScreen = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`max-w-4xl mx-auto p-8 rounded-2xl ${
-              isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-            } shadow-lg mb-20`}
+            className={`max-w-4xl mx-auto p-8 rounded-2xl ${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
+              } shadow-lg mb-20`}
           >
-            <h2 className={`text-3xl font-bold mb-6 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
+            <h2 className={`text-3xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>
               Our Mission
             </h2>
-            <p className={`text-lg ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}>
-              We aim to provide a reliable platform for conducting online examinations, 
-              making it easier for institutions to manage assessments and for students 
-              to take tests from anywhere. Our focus is on creating a simple yet 
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+              We aim to provide a reliable platform for conducting online examinations,
+              making it easier for institutions to manage assessments and for students
+              to take tests from anywhere. Our focus is on creating a simple yet
               effective solution for online education needs.
             </p>
           </motion.div>
@@ -215,31 +198,27 @@ const AboutScreen = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {developers.map((dev, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`relative group overflow-hidden rounded-2xl ${
-                    isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-                  } shadow-lg p-6`}
+                  className={`relative group overflow-hidden rounded-2xl ${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
+                    } shadow-lg p-6`}
                 >
                   <div className="text-center">
-                    <div className={`w-24 h-24 mx-auto rounded-full mb-4 flex items-center justify-center text-3xl ${
-                      isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
-                    } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'}`}>
+                    <div className={`w-24 h-24 mx-auto rounded-full mb-4 flex items-center justify-center text-3xl ${isDarkMode ? 'bg-violet-500/20' : 'bg-violet-100'
+                      } ${isDarkMode ? 'text-violet-400' : 'text-violet-600'}`}>
                       {dev.name.charAt(0)}
                     </div>
-                    <h3 className={`text-xl font-semibold mb-2 ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}>
+                    <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}>
                       {dev.name}
                     </h3>
-                    <p className={`text-sm mb-4 ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
+                    <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
                       {dev.role}
                     </p>
                     <div className="flex justify-center space-x-4">
@@ -249,11 +228,10 @@ const AboutScreen = () => {
                         href={dev.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`p-2 rounded-full ${
-                          isDarkMode 
-                            ? 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30' 
+                        className={`p-2 rounded-full ${isDarkMode
+                            ? 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30'
                             : 'bg-violet-100 text-violet-600 hover:bg-violet-200'
-                        } transition-colors duration-200`}
+                          } transition-colors duration-200`}
                       >
                         <FaGithub className="w-5 h-5" />
                       </motion.a>
@@ -263,11 +241,10 @@ const AboutScreen = () => {
                         href={dev.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`p-2 rounded-full ${
-                          isDarkMode 
-                            ? 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30' 
+                        className={`p-2 rounded-full ${isDarkMode
+                            ? 'bg-violet-500/20 text-violet-400 hover:bg-violet-500/30'
                             : 'bg-violet-100 text-violet-600 hover:bg-violet-200'
-                        } transition-colors duration-200`}
+                          } transition-colors duration-200`}
                       >
                         <FaLinkedin className="w-5 h-5" />
                       </motion.a>

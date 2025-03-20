@@ -60,14 +60,14 @@ const ContactScreen = () => {
     {
       icon: <FaEnvelope />,
       title: 'Email',
-      details: 'kryptoexam@gmail.com',
-      link: 'mailto:kryptoexam@gmail.com'
+      details: 'kakadiya041@gmail.com',
+      link: 'mailto:kakadiya041@gmail.com'
     },
     {
       icon: <FaPhone />,
       title: 'Phone',
-      details: '+91 96018 10456',
-      link: 'tel:+919601810456'
+      details: '+91 99097 89358',
+      link: 'tel:+919909789358'
     },
     {
       icon: <FaMapMarkerAlt />,
