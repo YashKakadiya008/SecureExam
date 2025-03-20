@@ -3,19 +3,32 @@
 @tailwind utilities;
 
 :root {
-  --transition-duration: 0.3s;
+  --transition-duration: 0.15s;
+  --glass-white: rgba(255, 255, 255, 0.05);
+  --glass-dark: rgba(0, 0, 0, 0.2);
+  --glass-border-light: rgba(255, 255, 255, 0.15);
+  --glass-border-dark: rgba(255, 255, 255, 0.05);
+  --glass-highlight: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   transition: background-color var(--transition-duration) ease,
               color var(--transition-duration) ease;
+  @apply bg-black text-white;
+  background-image: radial-gradient(circle at 50% 0%, #101010 0%, #000000 100%);
+  background-attachment: fixed;
 }
 
-*, *::before, *::after {
+/* Simplify transitions for better performance */
+a, button, input {
   transition: background-color var(--transition-duration) ease,
-              border-color var(--transition-duration) ease,
               color var(--transition-duration) ease,
-              box-shadow var(--transition-duration) ease;
+              opacity var(--transition-duration) ease;
 }
 
 .no-transition {
@@ -31,35 +44,93 @@ body {
   }
 }
 
+/* Keep a few essential animations but optimize them */
 @keyframes float {
-  0% {
+  0%, 100% {
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
+    transform: translateY(-8px);
   }
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }
 }
 
-.hover\:rotate-180:hover {
-  transform: rotate(180deg);
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
 }
 
-.animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+/* Simplified glass effect utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.glass-highlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* For screens that need backdrop filter, apply selectively */
+@supports (backdrop-filter: blur(12px)) {
+  .glass, .glass-card, .glass-light, .glass-dark, .glass-button {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Disable hover effects for mobile devices to improve performance */
+@media (hover: none) {
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.section-transition {
+  transition: opacity 0.3s ease;
 }
