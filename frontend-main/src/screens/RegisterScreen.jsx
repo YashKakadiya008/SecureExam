@@ -10,6 +10,7 @@ import Loader from '../components/Loader';
 import { useTheme } from '../context/ThemeContext';
 import config from '../config/config.js';
 import { showToast } from '../utils/toast';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 const RegisterScreen = () => {
   const { isDarkMode } = useTheme();
@@ -29,6 +30,7 @@ const RegisterScreen = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -123,6 +125,11 @@ const RegisterScreen = () => {
       return;
     }
 
+    if (!termsAgreed) {
+      showToast.error('Please agree to the Terms of Service and Privacy Policy');
+      return;
+    }
+
     try {
       const res = await register({ name, email, password }).unwrap();
       dispatch(setCredentials({ ...res }));
@@ -156,256 +163,155 @@ const RegisterScreen = () => {
   };
 
   return (
-    <div className={`min-h-screen relative flex items-center justify-center pt-28 pb-12 px-4 sm:px-6 lg:px-8 ${
-      isDarkMode ? 'bg-[#0A0F1C]' : 'bg-white'
-    }`}>
-      {/* Fixed background gradients */}
-      <div className="fixed inset-0">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-violet-600/10 via-transparent to-indigo-600/10" />
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-violet-500/10 rounded-full filter blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full filter blur-3xl" />
-      </div>
-
-      {/* Loader - Move outside the motion.div and center it */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <Loader />
-        </div>
-      )}
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="w-full max-w-md relative z-10 mt-4"
-      >
-        {/* Title Section - Removed logo */}
-        <div className="text-center mb-8">
-          <h2 className={`text-3xl font-bold ${
-            isDarkMode ? 'text-white' : 'text-gray-900'
-          }`}>
+    <ScreenWrapper>
+      <div className="max-w-md mx-auto pb-12 px-4 pt-4">
+        <div className="flex justify-center mb-6">
+          <h1 className="text-3xl font-bold text-white">
             Create Account
-          </h2>
-          <p className={isDarkMode ? 'mt-2 text-gray-400' : 'mt-2 text-gray-600'}>
-            Join the future of education
-          </p>
+          </h1>
         </div>
 
-        <div className="mt-6 relative">
-          {/* Background blur effect */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${
-            isDarkMode 
-              ? 'from-violet-600/20 to-indigo-600/20'
-              : 'from-violet-600/10 to-indigo-600/10'
-          } rounded-lg blur`} />
-          
-          {/* Google Sign In Button */}
-          <div className="relative">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="p-6">
+            <p className="text-white/70 text-center mb-6">
+              Join the future of secure education
+            </p>
+            
+            {/* Google Sign In Button */}
+            <button
               onClick={handleGoogleSignIn}
-              className={`w-full flex items-center justify-center px-4 py-3 border ${
-                isDarkMode 
-                  ? 'border-gray-700 bg-gray-800/50 hover:bg-gray-700/50' 
-                  : 'border-gray-300 bg-white hover:bg-gray-50'
-              } rounded-lg transition-colors duration-150`}
+              className="glass w-full flex items-center justify-center px-4 py-3 rounded-lg text-white mb-6"
             >
               <FcGoogle className="w-5 h-5 mr-2" />
-              <span className={isDarkMode ? 'text-white' : 'text-gray-900'}>
-                Continue with Google
-              </span>
-            </motion.button>
-          </div>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className={`w-full border-t ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-300'
-              }`}></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className={`px-2 ${
-                isDarkMode 
-                  ? 'bg-gray-900/50 text-gray-400' 
-                  : 'bg-white/50 text-gray-500'
-              }`}>
-                Or continue with email
+              <span>Continue with Google</span>
+            </button>
+            
+            {/* Divider */}
+            <div className="glass-divider my-4 relative">
+              <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 px-4 text-white/50 text-sm">
+                Or with email
               </span>
             </div>
-          </div>
-
-          <form 
-            onSubmit={submitHandler} 
-            className={`relative space-y-6 ${
-              isDarkMode 
-                ? 'bg-gray-900/50 border-gray-800' 
-                : 'bg-white/50 border-gray-200'
-            } backdrop-blur-xl p-6 sm:p-8 rounded-lg shadow-xl border`}
-          >
-            <div className="space-y-5">
+            
+            <form onSubmit={submitHandler} className="space-y-4 mt-6">
+              {/* Name Field */}
               <div>
-                <label htmlFor="name" className={`block text-sm font-medium ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label htmlFor="name" className="block text-sm font-medium mb-1 text-white/80">
                   Full Name
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaUser className={`h-5 w-5 ${
-                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`} />
+                    <FaUser className="text-white/50" />
                   </div>
                   <input
-                    id="name"
                     type="text"
-                    required
-                    className={`block w-full pl-10 pr-3 py-2 border ${
-                      isDarkMode 
-                        ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                        : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
+                    id="name"
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    required
+                    className="glass w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white/50"
                   />
                 </div>
               </div>
-
+              
+              {/* Email Field */}
               <div>
-                <label htmlFor="email" className={`block text-sm font-medium ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label htmlFor="email" className="block text-sm font-medium mb-1 text-white/80">
                   Email Address
                 </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className={`h-5 w-5 ${
-                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`} />
+                    <FaEnvelope className="text-white/50" />
                   </div>
                   <input
-                    id="email"
                     type="email"
-                    required
-                    className={`block w-full pl-10 pr-3 py-2 border ${
-                      isDarkMode 
-                        ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                        : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
+                    id="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="glass w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder-white/50"
                   />
                 </div>
               </div>
-
+              
+              {/* Password Field */}
               <div>
-                <label htmlFor="password" className={`block text-sm font-medium ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <label htmlFor="password" className="block text-sm font-medium mb-1 text-white/80">
                   Password
                 </label>
-                <div className="mt-1 space-y-2">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaLock className={`h-5 w-5 ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                      }`} />
-                    </div>
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      className={`block w-full pl-10 pr-12 py-2 border ${
-                        isDarkMode 
-                          ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                          : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                      placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
-                        checkPasswordStrength(e.target.value);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showPassword ? (
-                        <FaEye className={`h-5 w-5 ${
-                          isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                        } cursor-pointer transition-colors`} />
-                      ) : (
-                        <FaEyeSlash className={`h-5 w-5 ${
-                          isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                        } cursor-pointer transition-colors`} />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Password Strength Indicator */}
-                  {password && (
-                    <div className="space-y-2">
-                      <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${getStrengthColor()} transition-all duration-300`}
-                          style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                        />
-                      </div>
-
-                      {/* Password Requirements */}
-                      <div className={`text-xs space-y-1 ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
-                        <p className={passwordStrength.requirements.length ? 'text-green-500' : ''}>
-                          ✓ At least 8 characters
-                        </p>
-                        <p className={passwordStrength.requirements.uppercase ? 'text-green-500' : ''}>
-                          ✓ At least one uppercase letter
-                        </p>
-                        <p className={passwordStrength.requirements.lowercase ? 'text-green-500' : ''}>
-                          ✓ At least one lowercase letter
-                        </p>
-                        <p className={passwordStrength.requirements.number ? 'text-green-500' : ''}>
-                          ✓ At least one number
-                        </p>
-                        <p className={passwordStrength.requirements.special ? 'text-green-500' : ''}>
-                          ✓ At least one special character
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="confirmPassword" className={`block text-sm font-medium ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Confirm Password
-                </label>
-                <div className="mt-1 relative">
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className={`h-5 w-5 ${
-                      isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                    }`} />
+                    <FaLock className="text-white/50" />
                   </div>
                   <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
-                    className={`block w-full pl-10 pr-12 py-2 border ${
-                      isDarkMode 
-                        ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                        : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
+                    className="glass w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <FaEye className="text-white/50 hover:text-white cursor-pointer transition-colors" />
+                    ) : (
+                      <FaEyeSlash className="text-white/50 hover:text-white cursor-pointer transition-colors" />
+                    )}
+                  </button>
+                </div>
+                
+                {/* Password Strength Indicator */}
+                {password && (
+                  <div className="mt-2">
+                    <div className="flex w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`${getStrengthColor()} h-full transition-all duration-300`} style={{ width: `${(passwordStrength.score / 5) * 100}%` }}></div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                      <div className={`flex items-center ${passwordStrength.requirements.length ? 'text-green-400' : 'text-white/50'}`}>
+                        <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.length ? '✓' : '○'}</span> At least 8 characters
+                      </div>
+                      <div className={`flex items-center ${passwordStrength.requirements.uppercase ? 'text-green-400' : 'text-white/50'}`}>
+                        <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.uppercase ? '✓' : '○'}</span> Uppercase letter
+                      </div>
+                      <div className={`flex items-center ${passwordStrength.requirements.lowercase ? 'text-green-400' : 'text-white/50'}`}>
+                        <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.lowercase ? '✓' : '○'}</span> Lowercase letter
+                      </div>
+                      <div className={`flex items-center ${passwordStrength.requirements.number ? 'text-green-400' : 'text-white/50'}`}>
+                        <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.number ? '✓' : '○'}</span> Number
+                      </div>
+                      <div className={`flex items-center ${passwordStrength.requirements.special ? 'text-green-400' : 'text-white/50'}`}>
+                        <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.special ? '✓' : '○'}</span> Special character
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Confirm Password Field */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-white/80">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaLock className="text-white/50" />
+                  </div>
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
                     placeholder="Confirm your password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="glass w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white/50"
                   />
                   <button
                     type="button"
@@ -413,41 +319,63 @@ const RegisterScreen = () => {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showConfirmPassword ? (
-                      <FaEye className={`h-5 w-5 ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                      } cursor-pointer transition-colors`} />
+                      <FaEye className="text-white/50 hover:text-white cursor-pointer transition-colors" />
                     ) : (
-                      <FaEyeSlash className={`h-5 w-5 ${
-                        isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                      } cursor-pointer transition-colors`} />
+                      <FaEyeSlash className="text-white/50 hover:text-white cursor-pointer transition-colors" />
                     )}
                   </button>
                 </div>
+                {password && confirmPassword && password !== confirmPassword && (
+                  <p className="mt-1 text-sm text-red-400">Passwords do not match</p>
+                )}
               </div>
-            </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={isLoading || !isPasswordValid() || !password || !confirmPassword}
-              className="w-full flex justify-center py-3 px-4 rounded-lg text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-150"
-            >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
-            </motion.button>
-          </form>
+              {/* Terms and Conditions Checkbox */}
+              <div className="flex items-start mt-4">
+                <div className="flex items-center h-5">
+                  <input
+                    id="terms"
+                    name="terms"
+                    type="checkbox"
+                    checked={termsAgreed}
+                    onChange={(e) => setTermsAgreed(e.target.checked)}
+                    className="glass-light h-4 w-4 rounded text-violet-600 border-white/30 focus:ring-violet-500"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="terms" className="text-white/70">
+                    I agree to the <Link to="/terms" className="text-violet-400 hover:text-violet-300">Terms of Service</Link> and <Link to="/privacy" className="text-violet-400 hover:text-violet-300">Privacy Policy</Link>
+                  </label>
+                </div>
+              </div>
+              
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isLoading || !termsAgreed}
+                  className={`glass-button w-full py-3 rounded-lg text-white font-medium ${
+                    isLoading || !termsAgreed ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isLoading ? <Loader small /> : 'Create Account'}
+                </button>
+              </div>
+              
+              {/* Login Link */}
+              <div className="text-center mt-4">
+                <p className="text-white/70">
+                  Already have an account?{' '}
+                  <Link to="/login" className="text-violet-400 hover:text-violet-300">
+                    Sign In
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <div className="text-center mt-6">
-          <p className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-violet-600 hover:text-violet-500 transition-colors">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </motion.div>
-    </div>
+      </div>
+    </ScreenWrapper>
   );
 };
 
