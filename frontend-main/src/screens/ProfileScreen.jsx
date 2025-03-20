@@ -9,7 +9,8 @@ import { setCredentials } from '../slices/authSlice';
 import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
 import { showToast } from '../utils/toast';
-import { FaEye, FaEyeSlash, FaLock, FaUser, FaEnvelope, FaUserCircle } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaLock, FaUser, FaEnvelope, FaUserCircle, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 const ProfileScreen = () => {
   const { isDarkMode } = useTheme();
@@ -119,12 +120,8 @@ const ProfileScreen = () => {
 
   const InputField = ({ value, onChange, ...props }) => (
     <input
-      className={`w-full pl-10 pr-12 py-3 rounded-lg ${
-        isDarkMode 
-          ? 'bg-[#0A0F1C] border-gray-700 text-white placeholder-gray-500' 
-          : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
-      } border focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors duration-200 ${
-        !isEditing ? 'opacity-75 cursor-not-allowed' : ''
+      className={`glass w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white/50 transition-colors duration-200 ${
+        !isEditing ? 'opacity-60 cursor-not-allowed' : ''
       }`}
       disabled={!isEditing}
       value={value}
@@ -134,245 +131,228 @@ const ProfileScreen = () => {
   );
 
   return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'}`}>
-      <div className="max-w-xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'} rounded-2xl shadow-xl p-8`}
-        >
-          {/* Profile Header */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="text-center">
-              <div className="relative inline-block">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Profile"
-                    className="w-24 h-24 rounded-full border-4 border-violet-500"
+    <ScreenWrapper>
+      <div className="max-w-2xl mx-auto pb-12 px-4 pt-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">
+            Your Profile
+          </h1>
+          {!isEditing ? (
+            <button
+              type="button"
+              onClick={() => setIsEditing(true)}
+              className="glass p-2.5 rounded-full text-white hover:text-white/80 transition-colors"
+              title="Edit Profile"
+            >
+              <FaEdit />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditing(false);
+                setName(userInfo.name || '');
+                setEmail(userInfo.email || '');
+                setPassword('');
+                setConfirmPassword('');
+              }}
+              className="glass p-2.5 rounded-full text-white hover:text-white/80 transition-colors"
+              title="Cancel Editing"
+            >
+              <FaTimes />
+            </button>
+          )}
+        </div>
+
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="p-6">
+            {/* Profile Header */}
+            <div className="flex items-center justify-center mb-8">
+              <div className="text-center">
+                <div className="relative inline-block">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full border-4 border-violet-500 bg-violet-500/10"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full flex items-center justify-center border-4 border-violet-500 bg-violet-500/10">
+                      <FaUserCircle className="w-16 h-16 text-white/80" />
+                    </div>
+                  )}
+                </div>
+                <h2 className="mt-4 text-2xl font-bold text-white">
+                  {userInfo?.name}
+                </h2>
+                <div className="glass-light px-3 py-1 rounded-full mt-2 inline-block">
+                  <p className="text-sm text-white/80">
+                    {userInfo?.userType?.charAt(0).toUpperCase() + userInfo?.userType?.slice(1)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Name Field */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-white/80">
+                  Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className="text-white/50" />
+                  </div>
+                  <InputField
+                    type="text"
+                    placeholder="Enter name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
-                ) : (
-                  <FaUserCircle className="w-24 h-24 text-violet-500" />
-                )}
-              </div>
-              <h2 className={`mt-4 text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {userInfo?.name}
-              </h2>
-              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {userInfo?.userType?.charAt(0).toUpperCase() + userInfo?.userType?.slice(1)}
-              </p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaUser className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
                 </div>
-                <InputField
-                  type="text"
-                  placeholder="Enter name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
               </div>
-            </div>
 
-            {/* Email Field */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                Email
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope className={isDarkMode ? 'text-gray-500' : 'text-gray-400'} />
+              {/* Email Field */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-white/80">
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaEnvelope className="text-white/50" />
+                  </div>
+                  <InputField
+                    type="email"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
-                <InputField
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
               </div>
-            </div>
 
-            {/* Password Fields */}
-            {isEditing && (
-              <>
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    New Password
-                  </label>
-                  <div className="mt-1 space-y-2">
+              {/* Password Fields */}
+              {isEditing && (
+                <>
+                  <div className="glass-divider my-4"></div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white/80">
+                      New Password
+                    </label>
+                    <div className="mt-1 space-y-2">
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <FaLock className="text-white/50" />
+                        </div>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter new password"
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            checkPasswordStrength(e.target.value);
+                          }}
+                          className="glass w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white/50"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        >
+                          {showPassword ? (
+                            <FaEye className="text-white/50 hover:text-white cursor-pointer transition-colors" />
+                          ) : (
+                            <FaEyeSlash className="text-white/50 hover:text-white cursor-pointer transition-colors" />
+                          )}
+                        </button>
+                      </div>
+
+                      {password && (
+                        <div className="mt-2">
+                          <div className="flex w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                            <div className={`${getStrengthColor()} h-full transition-all duration-300`} style={{ width: `${(passwordStrength.score / 5) * 100}%` }}></div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                            <div className={`flex items-center ${passwordStrength.requirements.length ? 'text-green-400' : 'text-white/50'}`}>
+                              <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.length ? '✓' : '○'}</span> At least 8 characters
+                            </div>
+                            <div className={`flex items-center ${passwordStrength.requirements.uppercase ? 'text-green-400' : 'text-white/50'}`}>
+                              <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.uppercase ? '✓' : '○'}</span> Uppercase letter
+                            </div>
+                            <div className={`flex items-center ${passwordStrength.requirements.lowercase ? 'text-green-400' : 'text-white/50'}`}>
+                              <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.lowercase ? '✓' : '○'}</span> Lowercase letter
+                            </div>
+                            <div className={`flex items-center ${passwordStrength.requirements.number ? 'text-green-400' : 'text-white/50'}`}>
+                              <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.number ? '✓' : '○'}</span> Number
+                            </div>
+                            <div className={`flex items-center ${passwordStrength.requirements.special ? 'text-green-400' : 'text-white/50'}`}>
+                              <span className="w-4 h-4 mr-1 inline-block">{passwordStrength.requirements.special ? '✓' : '○'}</span> Special character
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white/80">
+                      Confirm New Password
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaLock className={`h-5 w-5 ${
-                          isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                        }`} />
+                        <FaLock className="text-white/50" />
                       </div>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter new password"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          checkPasswordStrength(e.target.value);
-                        }}
-                        className={`block w-full pl-10 pr-12 py-2 border ${
-                          isDarkMode 
-                            ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                            : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                        } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="glass w-full pl-10 pr-12 py-3 rounded-lg text-white placeholder-white/50"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                       >
-                        {showPassword ? (
-                          <FaEye className={`h-5 w-5 ${
-                            isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                          } cursor-pointer transition-colors`} />
+                        {showConfirmPassword ? (
+                          <FaEye className="text-white/50 hover:text-white cursor-pointer transition-colors" />
                         ) : (
-                          <FaEyeSlash className={`h-5 w-5 ${
-                            isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                          } cursor-pointer transition-colors`} />
+                          <FaEyeSlash className="text-white/50 hover:text-white cursor-pointer transition-colors" />
                         )}
                       </button>
                     </div>
-
-                    {/* Password Strength Indicator */}
-                    {password && (
-                      <div className="space-y-2">
-                        <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full ${getStrengthColor()} transition-all duration-300`}
-                            style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
-                          />
-                        </div>
-
-                        {/* Password Requirements */}
-                        <div className={`text-xs space-y-1 ${
-                          isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                          <p className={passwordStrength.requirements.length ? 'text-green-500' : ''}>
-                            ✓ At least 8 characters
-                          </p>
-                          <p className={passwordStrength.requirements.uppercase ? 'text-green-500' : ''}>
-                            ✓ At least one uppercase letter
-                          </p>
-                          <p className={passwordStrength.requirements.lowercase ? 'text-green-500' : ''}>
-                            ✓ At least one lowercase letter
-                          </p>
-                          <p className={passwordStrength.requirements.number ? 'text-green-500' : ''}>
-                            ✓ At least one number
-                          </p>
-                          <p className={passwordStrength.requirements.special ? 'text-green-500' : ''}>
-                            ✓ At least one special character
-                          </p>
-                        </div>
-                      </div>
+                    {password && confirmPassword && password !== confirmPassword && (
+                      <p className="mt-1 text-sm text-red-400">Passwords do not match</p>
                     )}
                   </div>
-                </div>
+                </>
+              )}
 
-                <div>
-                  <label className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaLock className={`h-5 w-5 ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-400'
-                      }`} />
-                    </div>
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirm new password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`block w-full pl-10 pr-12 py-2 border ${
-                        isDarkMode 
-                          ? 'border-gray-700 bg-gray-800/50 text-white placeholder-gray-500' 
-                          : 'border-gray-300 bg-white/50 text-gray-900 placeholder-gray-400'
-                      } rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                    >
-                      {showConfirmPassword ? (
-                        <FaEye className={`h-5 w-5 ${
-                          isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                        } cursor-pointer transition-colors`} />
-                      ) : (
-                        <FaEyeSlash className={`h-5 w-5 ${
-                          isDarkMode ? 'text-gray-500 hover:text-gray-300' : 'text-gray-400 hover:text-gray-600'
-                        } cursor-pointer transition-colors`} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Action Buttons */}
-            <div className="flex space-x-4">
-              {!isEditing ? (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(true)}
-                  className="w-full px-4 py-3 text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors duration-200"
-                >
-                  Edit Profile
-                </button>
-              ) : (
-                <div className="flex space-x-4 w-full">
+              {/* Submit Button */}
+              {isEditing && (
+                <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex-1 px-4 py-3 text-white bg-violet-600 hover:bg-violet-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="glass-button w-full py-3 rounded-lg flex items-center justify-center text-white font-medium"
                   >
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setName(userInfo.name || '');
-                      setEmail(userInfo.email || '');
-                      setPassword('');
-                      setConfirmPassword('');
-                    }}
-                    className={`px-4 py-3 rounded-lg ${
-                      isDarkMode 
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Cancel
+                    {isLoading ? (
+                      <Loader small />
+                    ) : (
+                      <>
+                        <FaSave className="mr-2" />
+                        Save Changes
+                      </>
+                    )}
                   </button>
                 </div>
               )}
-            </div>
-          </form>
-        </motion.div>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </ScreenWrapper>
   );
 };
 

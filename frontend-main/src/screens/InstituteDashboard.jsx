@@ -3,7 +3,9 @@ import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
 import { showToast } from '../utils/toast';
 import axiosInstance from '../utils/axiosConfig';
-import { FaSync, FaDownload } from 'react-icons/fa';
+import { FaSync, FaDownload, FaUpload, FaEye, FaChartBar } from 'react-icons/fa';
+import ScreenWrapper from '../components/ScreenWrapper';
+import Loader from '../components/Loader';
 
 const InstituteDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -328,435 +330,399 @@ const InstituteDashboard = () => {
     }
   };
 
-  return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <nav className="flex space-x-8">
-            {['upload', 'exams'].map((tab) => (
+  // Render upload form
+  const renderUploadForm = () => {
+    return (
+      <div className="space-y-6">
+        <div className="glass-card p-6 rounded-xl">
+          <h3 className="text-xl font-semibold text-white mb-6">Upload New Exam</h3>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="examName" className="block text-sm font-medium text-white/80 mb-1">
+                Exam Name
+              </label>
+              <input
+                type="text"
+                id="examName"
+                value={examName}
+                onChange={(e) => setExamName(e.target.value)}
+                placeholder="Enter exam name"
+                required
+                className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-white/80 mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter exam description"
+                required
+                rows="3"
+                className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="examDuration" className="block text-sm font-medium text-white/80 mb-1">
+                Exam Duration (minutes)
+              </label>
+              <input
+                type="number"
+                id="examDuration"
+                min="5"
+                max="180"
+                value={examDuration}
+                onChange={handleExamDurationChange}
+                placeholder="Enter duration in minutes"
+                required
+                className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="fileUpload" className="block text-sm font-medium text-white/80 mb-1">
+                Upload JSON File
+              </label>
+              <div className="glass w-full rounded-lg">
+                <label className="flex flex-col items-center justify-center px-4 py-6 cursor-pointer">
+                  <FaUpload className="text-white/60 w-8 h-8 mb-2" />
+                  <span className="text-sm text-white/70">
+                    {file ? file.name : 'Click to select a file'}
+                  </span>
+                  <input
+                    id="fileUpload"
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    required
+                  />
+                  {file && (
+                    <span className="mt-2 text-xs text-white/60">
+                      {(file.size / 1024).toFixed(2)} KB
+                    </span>
+                  )}
+                </label>
+              </div>
+              <p className="mt-2 text-xs text-white/60">
+                Only JSON files with the correct format are accepted
+              </p>
+            </div>
+            
+            <div className="pt-2">
               <button
-                key={tab}
-                onClick={() => handleTabSwitch(tab)}
-                className={`py-2 px-1 text-sm font-medium border-b-2 transition-colors duration-200 ${
-                  activeTab === tab
-                    ? 'border-violet-500 text-violet-500'
-                    : isDarkMode 
-                      ? 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </nav>
-        </div>
-
-        {activeTab === 'upload' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`${
-              isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-            } rounded-lg shadow-md p-6`}
-          >
-            <h2 className={`text-2xl font-bold mb-6 ${
-              isDarkMode ? 'text-white' : 'text-gray-900'
-            }`}>
-              Upload Exam Questions
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Exam Name
-                </label>
-                <input
-                  type="text"
-                  value={examName}
-                  onChange={(e) => setExamName(e.target.value)}
-                  placeholder="Enter exam name"
-                  required
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-[#0A0F1C] border-gray-700 text-white placeholder-gray-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
-                  } border focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                />
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Description
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter exam description"
-                  required
-                  rows={4}
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-[#0A0F1C] border-gray-700 text-white placeholder-gray-500' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
-                  } border focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                />
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Exam Duration (in minutes)
-                </label>
-                <input
-                  type="number"
-                  value={examDuration}
-                  onChange={handleExamDurationChange}
-                  min="0"
-                  placeholder="Enter exam duration"
-                  required
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-[#0A0F1C] border-gray-700 text-white' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900'
-                  } border focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                />
-                <p className={`mt-1 text-sm ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  Minimum duration: 0 minutes
-                </p>
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Upload JSON File
-                </label>
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  accept="application/json"
-                  required
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-[#0A0F1C] border-gray-700 text-white' 
-                      : 'bg-gray-50 border-gray-200 text-gray-900'
-                  } border focus:ring-2 focus:ring-violet-500 focus:border-transparent`}
-                />
-                <p className={`mt-2 text-sm ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>
-                  Upload a JSON file containing exam questions. Each question must have 4 options 
-                  and one correct answer (numbered 1-4).
-                </p>
-              </div>
-
-              {error && (
-                <div className={`p-4 rounded-lg ${
-                  isDarkMode 
-                    ? 'bg-red-900/20 border-red-800 text-red-300' 
-                    : 'bg-red-50 border-red-200 text-red-700'
-                } border`}>
-                  {error}
-                </div>
-              )}
-              
-              {success && (
-                <div className={`p-4 rounded-lg ${
-                  isDarkMode 
-                    ? 'bg-green-900/20 border-green-800 text-green-300' 
-                    : 'bg-green-50 border-green-200 text-green-700'
-                } border`}>
-                  {success}
-                </div>
-              )}
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading || !file || !examName || !description}
-                className="w-full px-4 py-3 text-white bg-gradient-to-r from-violet-600 to-indigo-600 rounded-lg hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-150"
+                className={`glass-button w-full py-3 px-4 rounded-lg text-white font-medium ${
+                  loading || !file || !examName || !description ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                    Uploading...
-                  </div>
-                ) : (
-                  'Upload Questions'
-                )}
-              </motion.button>
-            </form>
-          </motion.div>
-        )}
-
-        {activeTab === 'exams' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`${
-              isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-            } rounded-lg shadow-md p-6`}
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h2 className={`text-2xl font-bold ${
-                isDarkMode ? 'text-white' : 'text-gray-900'
-              }`}>
-                My Uploads
-              </h2>
-              <button
-                onClick={handleUploadsRefresh}
-                disabled={isRefreshing}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  isDarkMode 
-                    ? 'bg-[#2a2f3e] hover:bg-[#3a3f4e] text-gray-300' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                } ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                title="Refresh uploads"
-              >
-                <FaSync className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {loading ? <Loader small /> : 'Upload Exam'}
               </button>
             </div>
-            <div className="overflow-x-auto rounded-lg">
-              <table className={`min-w-full divide-y ${
-                isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
-              }`}>
-                <thead className={isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'}>
-                  <tr>
-                    {['Exam Name', 'Description', 'Status', 'Uploaded Date', 'Total Questions', 'Results', 'Actions', 'Exam Mode', 'Toggle Exam Mode'].map((header) => (
-                      <th key={header} className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`}>
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${
-                  isDarkMode 
-                    ? 'divide-gray-700 bg-[#1a1f2e]' 
-                    : 'divide-gray-200 bg-white'
-                }`}>
-                  {uploads.map((upload) => (
-                    <tr key={upload._id}>
-                      <td className={`px-6 py-4 whitespace-nowrap ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                      }`}>
-                        {upload.examName}
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                      }`}>
-                        {upload.description}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          upload.status === 'approved' 
-                            ? isDarkMode ? 'bg-green-900/20 text-green-300' : 'bg-green-100 text-green-800'
-                            : upload.status === 'rejected'
-                            ? isDarkMode ? 'bg-red-900/20 text-red-300' : 'bg-red-100 text-red-800'
-                            : isDarkMode ? 'bg-yellow-900/20 text-yellow-300' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {upload.status}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                      }`}>
-                        {new Date(upload.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap ${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                      }`}>
-                        {upload.totalQuestions}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {upload.status === 'approved' && (
-                          <button
-                            onClick={() => handleViewResults(upload._id)} // Call the function to view results
-                            className="px-3 py-1 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
-                          >
-                            View Results
-                          </button>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {upload.status === 'approved' && !upload.resultsReleased && (
-                          <button
-                            onClick={() => handleReleaseResults(upload._id)}
-                            className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                          >
-                            Release Results
-                          </button>
-                        )}
-                        {upload.resultsReleased && (
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            isDarkMode 
-                              ? 'bg-green-900/20 text-green-300' 
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            Results Released
-                          </span>
-                        )}
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap`}>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          upload.examMode
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {upload.examMode ? 'Active' : 'Not Started'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleToggleExamMode(upload._id)}
-                          disabled={upload.status !== 'approved'}
-                          className={`px-3 py-1 text-white text-sm rounded-lg hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                            upload.examMode ? 'bg-red-600' : 'bg-green-600'
-                          } ${upload.status !== 'approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          {upload.examMode ? 'Disable Exam Mode' : 'Enable Exam Mode'}
-                        </button>
-                        {/* {upload.status !== 'approved' && (
-                          <span className="text-xs text-red-500">Cannot toggle exam mode until approved</span>
-                        )} */}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Results Modal */}
-        {showResultsModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className={`${
-                isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-              } rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] flex flex-col`}
-            >
-              <div className={`p-6 border-b ${
-                isDarkMode ? 'border-gray-700' : 'border-gray-200'
-              } flex justify-between items-center`}>
-                <div className={`flex justify-between items-center`}>
-                  <h3 className={`text-lg font-semibold mx-2 ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>
-                    {selectedExam?.examName} - Results
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleResultsRefresh}
-                      disabled={isRefreshing}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
-                        isDarkMode 
-                          ? 'bg-[#2a2f3e] hover:bg-[#3a3f4e] text-gray-300' 
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                      } ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      title="Refresh results"
-                    >
-                      <FaSync className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    </button>
-                    <button
-                      onClick={downloadResultsAsCSV}
-                      className={`p-2 rounded-lg transition-all duration-200 ${
-                        isDarkMode 
-                          ? 'bg-[#2a2f3e] hover:bg-[#3a3f4e] text-gray-300' 
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                      }`}
-                      title="Download results as CSV"
-                    >
-                      <FaDownload className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowResultsModal(false)}
-                  className={`${
-                    isDarkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-400 hover:text-gray-500'
-                  }`}
-                >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+            
+            {error && (
+              <div className="p-4 rounded-lg glass-card border border-red-400 text-white">
+                <p>{error}</p>
               </div>
-              <div className="flex-1 overflow-y-auto p-6">
-                {examResults.length === 0 ? (
-                  <div className={`p-4 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-blue-900/20 text-blue-300' 
-                      : 'bg-blue-50 text-blue-700'
-                  }`}>
-                    No results available yet.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className={`min-w-full divide-y ${
-                      isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
-                    }`}>
-                      <thead className={`${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'} sticky top-0`}>
-                        <tr>
-                          {['Student Name', 'Score', 'Correct Answers', 'Submission Date'].map((header) => (
-                            <th key={header} className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
-                              isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                            }`}>
-                              {header}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className={`divide-y ${
-                        isDarkMode 
-                          ? 'divide-gray-700 bg-[#1a1f2e]' 
-                          : 'divide-gray-200 bg-white'
-                      }`}>
-                        {examResults.map((result) => (
-                          <tr key={result._id}>
-                            <td className={`px-6 py-4 whitespace-nowrap ${
-                              isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                            }`}>
-                              {result.student?.name || 'Deleted User'}
-                            </td>
-                            <td className={`px-6 py-4 whitespace-nowrap ${
-                              isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                            }`}>
-                              {result.score?.toFixed(2) || '0.00'}%
-                            </td>
-                            <td className={`px-6 py-4 whitespace-nowrap ${
-                              isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                            }`}>
-                              {result.correctAnswers} / {result.totalQuestions}
-                            </td>
-                            <td className={`px-6 py-4 whitespace-nowrap ${
-                              isDarkMode ? 'text-gray-300' : 'text-gray-900'
-                            }`}>
-                              {new Date(result.submittedAt).toLocaleString()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+            )}
+            
+            {success && (
+              <div className="p-4 rounded-lg glass-card border border-green-400 text-white">
+                <p>{success}</p>
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Render uploads list
+  const renderUploadsList = () => {
+    return (
+      <div className="glass-card rounded-xl overflow-hidden">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-white/10">
+          <h3 className="text-xl font-semibold text-white">Your Exams</h3>
+          <button 
+            onClick={handleUploadsRefresh}
+            className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+            disabled={isRefreshing}
+          >
+            <FaSync className={isRefreshing ? "animate-spin" : ""} />
+          </button>
+        </div>
+        
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <Loader />
+            </div>
+          ) : (
+            <>
+              {uploads && uploads.length > 0 ? (
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Exam Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Exam Code</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {uploads.map((upload) => (
+                      <tr key={upload._id} className="hover:bg-white/5">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                          {upload.examName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`glass-light px-2.5 py-1 rounded-full text-xs font-medium ${
+                            upload.status === 'approved' ? 'text-green-400' :
+                            upload.status === 'pending' ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                            {upload.status.charAt(0).toUpperCase() + upload.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                          {new Date(upload.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                          {upload.ipfsHash ? (
+                            <span className="font-mono">{upload.ipfsHash.substring(0, 8)}...</span>
+                          ) : (
+                            <span className="text-white/50">Not available</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleViewResults(upload._id)}
+                              className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+                              title="View Results"
+                            >
+                              <FaEye size={14} />
+                            </button>
+                            {upload.results && upload.results.length > 0 && (
+                              <button
+                                onClick={() => handleToggleExamMode(upload._id)}
+                                className={`glass p-2 rounded-full ${upload.resultsReleased ? 'text-green-400' : 'text-yellow-400'} hover:text-white transition-colors`}
+                                title={upload.resultsReleased ? "Results Released" : "Release Results"}
+                              >
+                                <FaChartBar size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-white/70">No exams uploaded yet.</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Results Modal
+  const renderResultsModal = () => {
+    if (!showResultsModal) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div onClick={(e) => e.stopPropagation()} className="glass-card max-w-4xl w-full mx-4 p-6 rounded-xl relative max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+            <h3 className="text-xl font-bold text-white">
+              Results: {selectedExam?.examName}
+            </h3>
+            
+            <div className="flex space-x-2">
+              <button
+                onClick={handleResultsRefresh}
+                className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+                disabled={isRefreshing}
+              >
+                <FaSync className={isRefreshing ? "animate-spin" : ""} />
+              </button>
+              
+              <button
+                onClick={() => downloadResultsAsCSV()}
+                className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+                disabled={!examResults.length}
+                title="Download as CSV"
+              >
+                <FaDownload />
+              </button>
+              
+              <button
+                onClick={() => setShowResultsModal(false)}
+                className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+              >
+                <span>×</span>
+              </button>
+            </div>
+          </div>
+          
+          {selectedExam && (
+            <div className="mb-4 flex flex-wrap justify-between gap-4">
+              <div>
+                <p className="text-white/70 text-sm">
+                  Status: <span className="text-white">{selectedExam.status}</span>
+                </p>
+                <p className="text-white/70 text-sm">
+                  Total Submissions: <span className="text-white">{examResults.length}</span>
+                </p>
+              </div>
+              
+              <div>
+                {examResults.length > 0 && !selectedExam.resultsReleased && (
+                  <button
+                    onClick={() => handleReleaseResults(selectedExam._id)}
+                    className="glass-button px-4 py-2 rounded-lg text-white text-sm"
+                    disabled={loading}
+                  >
+                    {loading ? <Loader small /> : 'Release Results to Students'}
+                  </button>
+                )}
+                {selectedExam.resultsReleased && (
+                  <span className="glass-light px-3 py-1.5 rounded-lg text-green-400 text-xs font-medium">
+                    Results Released
+                  </span>
                 )}
               </div>
-            </motion.div>
+            </div>
+          )}
+          
+          <div className="overflow-auto flex-grow">
+            {loading ? (
+              <div className="flex justify-center py-10">
+                <Loader />
+              </div>
+            ) : (
+              <>
+                {examResults && examResults.length > 0 ? (
+                  <table className="w-full">
+                    <thead className="sticky top-0 bg-black/30">
+                      <tr className="border-b border-white/10">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Student</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Score (%)</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Correct</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Total</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Submitted At</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {examResults.map((result) => (
+                        <tr key={result._id} className="hover:bg-white/5">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {result.student?.name || 'Deleted User'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                              result.score >= 70 ? 'text-green-400' :
+                              result.score >= 40 ? 'text-yellow-400' : 'text-red-400'
+                            }`}>
+                              {result.score?.toFixed(2) || '0.00'}%
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {result.correctAnswers || 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {result.totalQuestions || 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                            {result.submittedAt 
+                              ? new Date(result.submittedAt).toLocaleString()
+                              : 'N/A'
+                            }
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-white/70">No results found for this exam.</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    );
+  };
+
+  return (
+    <ScreenWrapper>
+      <div className="max-w-7xl mx-auto pb-12 px-4 pt-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">
+            Institute Dashboard
+          </h1>
+          <div className="flex space-x-2">
+            <button
+              onClick={fetchUploads}
+              className="glass p-2.5 rounded-full text-white hover:text-white/80 transition-colors"
+              title="Refresh"
+              disabled={isRefreshing}
+            >
+              <FaSync className={isRefreshing ? "animate-spin" : ""} />
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="glass-card rounded-xl overflow-hidden mb-8">
+          <div className="border-b border-white/10">
+            <nav className="flex">
+              <button
+                onClick={() => handleTabSwitch('upload')}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === 'upload'
+                    ? 'text-white border-b-2 border-violet-500'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
+              >
+                Upload Exam
+              </button>
+              <button
+                onClick={() => handleTabSwitch('exams')}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === 'exams'
+                    ? 'text-white border-b-2 border-violet-500'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
+              >
+                My Exams
+              </button>
+            </nav>
+          </div>
+
+          <div className="p-6">
+            {activeTab === 'upload' && renderUploadForm()}
+            {activeTab === 'exams' && renderUploadsList()}
+          </div>
+        </div>
+      </div>
+      
+      {/* Results Modal */}
+      {renderResultsModal()}
+    </ScreenWrapper>
   );
 };
 

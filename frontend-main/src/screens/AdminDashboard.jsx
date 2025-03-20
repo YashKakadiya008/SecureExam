@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
 import { motion } from 'framer-motion';
 import { FaTrash, FaSearch, FaSync } from 'react-icons/fa';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 const AdminDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -283,442 +284,460 @@ const AdminDashboard = () => {
   }
 
   const getStatusBadge = (status) => {
-    const baseClasses = "px-2 py-1 text-xs font-medium rounded-full";
     switch (status) {
       case 'pending':
-        return (
-          <span className={`${baseClasses} ${
-            isDarkMode 
-              ? 'bg-yellow-900/20 text-yellow-300' 
-              : 'bg-yellow-100 text-yellow-800'
-          }`}>
-            Pending
-          </span>
-        );
+        return <span className="glass-light px-2.5 py-1 rounded-full text-yellow-400 text-xs font-medium">Pending</span>;
       case 'approved':
-        return (
-          <span className={`${baseClasses} ${
-            isDarkMode 
-              ? 'bg-green-900/20 text-green-300' 
-              : 'bg-green-100 text-green-800'
-          }`}>
-            Approved
-          </span>
-        );
+        return <span className="glass-light px-2.5 py-1 rounded-full text-green-400 text-xs font-medium">Approved</span>;
       case 'rejected':
-        return (
-          <span className={`${baseClasses} ${
-            isDarkMode 
-              ? 'bg-red-900/20 text-red-300' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            Rejected
-          </span>
-        );
+        return <span className="glass-light px-2.5 py-1 rounded-full text-red-400 text-xs font-medium">Rejected</span>;
       default:
-        return null;
+        return <span className="glass-light px-2.5 py-1 rounded-full text-white/70 text-xs font-medium">Unknown</span>;
     }
   };
 
   console.log('Current requests:', requests);
   console.log('Current stats:', stats);
 
-  return (
-    <div className={`min-h-screen pt-20 ${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'}`}>
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-6 relative z-0">
-          <div className={`flex flex-wrap gap-2 sm:gap-4 border-b transition-none ${
-            isDarkMode ? 'border-gray-700' : 'border-gray-200'
-          }`}>
-            <button
-              onClick={() => handleTabSwitch('dashboard')}
-              className={`px-3 sm:px-4 py-2 font-medium transition-none text-sm sm:text-base ${
-                activeTab === 'dashboard'
-                  ? isDarkMode
-                    ? 'text-violet-400 border-b-2 border-violet-400'
-                    : 'text-violet-600 border-b-2 border-violet-600'
-                  : isDarkMode
-                  ? 'text-gray-400 hover:text-gray-300'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+  // Render dashboard tab
+  const renderDashboard = () => {
+    if (loading) {
+      return <div className="flex justify-center py-20"><Loader /></div>;
+    }
+    
+    if (!stats) {
+      return (
+        <div className="text-center py-10">
+          <p className="text-white/70">No dashboard data available.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="text-lg font-semibold text-white/80 mb-2">Total Users</h3>
+            <p className="text-3xl font-bold text-white">{stats.totalUsers || 0}</p>
+            <div className="mt-2">
+              <span className="text-sm text-white/60">Active accounts</span>
+            </div>
+          </div>
+          
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="text-lg font-semibold text-white/80 mb-2">Exams Conducted</h3>
+            <p className="text-3xl font-bold text-white">{stats.totalExams || 0}</p>
+            <div className="mt-2">
+              <span className="text-sm text-white/60">Across all institutes</span>
+            </div>
+          </div>
+          
+          <div className="glass-card p-6 rounded-xl">
+            <h3 className="text-lg font-semibold text-white/80 mb-2">Pending Requests</h3>
+            <p className="text-3xl font-bold text-white">{stats.pendingRequests || 0}</p>
+            <div className="mt-2">
+              <span className="text-sm text-white/60">Waiting for approval</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Requests Table */}
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="flex justify-between items-center px-6 py-4 border-b border-white/10">
+            <h3 className="text-xl font-semibold text-white">Recent Requests</h3>
+            <button 
+              onClick={refreshRequests}
+              className="glass p-2 rounded-full text-white/70 hover:text-white transition-colors"
+              disabled={isRefreshing}
             >
-              Exam Requests
+              <FaSync className={isRefreshing ? "animate-spin" : ""} />
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            {requests && requests.length > 0 ? (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Institute</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Exam Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {requests.slice(0, 5).map((request) => (
+                    <tr key={request._id} className="hover:bg-white/5">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                        {request.institute?.name || 'Unknown Institute'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                        {request.examName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(request.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                        {request.status === 'pending' ? (
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleApprove(request)}
+                              className="glass-button px-3 py-1 rounded-lg text-xs"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(request)}
+                              className="glass px-3 py-1 rounded-lg text-xs"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-white/50">
+                            {request.status === 'approved' ? 'Approved' : 'Rejected'}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-white/70">No requests found.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render users tab
+  const renderUsersTab = () => {
+    return (
+      <div className="space-y-6">
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="flex flex-wrap justify-between items-center px-6 py-4 border-b border-white/10">
+            <h3 className="text-xl font-semibold text-white">Users</h3>
+            <div className="flex items-center mt-2 sm:mt-0">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <FaSearch className="text-white/40" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="glass py-2 pl-10 pr-4 rounded-lg text-white placeholder-white/40 w-full sm:w-60"
+                />
+              </div>
+              <button 
+                onClick={handleUserListRefresh}
+                className="glass p-2 rounded-full ml-2 text-white/70 hover:text-white transition-colors"
+                disabled={isRefreshing}
+              >
+                <FaSync className={isRefreshing ? "animate-spin" : ""} />
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            {userLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader />
+              </div>
+            ) : (
+              <>
+                {filteredUsers && filteredUsers.length > 0 ? (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">User Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Created At</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {filteredUsers.map((user) => (
+                        <tr key={user._id} className="hover:bg-white/5">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {user.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            {user.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            <span className={`glass-light px-2.5 py-1 rounded-full text-xs capitalize`}>
+                              {user.userType}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/70">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white/80">
+                            <button
+                              onClick={() => handleDeleteUser(user._id)}
+                              className="glass text-red-400 p-2 rounded-full hover:bg-white/10 transition-colors"
+                              title="Delete user"
+                            >
+                              <FaTrash size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-white/70">No users found.</p>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Render create user tab
+  const renderCreateUserTab = () => {
+    return (
+      <div className="glass-card p-6 rounded-xl">
+        <h3 className="text-xl font-semibold text-white mb-6">Create New User</h3>
+        
+        <form onSubmit={submitHandler} className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-white/80 mb-1">
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter full name"
+              required
+              className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email address"
+              required
+              className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="userType" className="block text-sm font-medium text-white/80 mb-1">
+              User Type
+            </label>
+            <select
+              id="userType"
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              className="glass w-full px-4 py-3 rounded-lg text-white"
+            >
+              <option value="student">Student</option>
+              <option value="institute">Institute</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="glass-button w-full py-3 px-4 rounded-lg text-white font-medium"
+            >
+              {isLoading ? <Loader small /> : 'Create User'}
+            </button>
+          </div>
+          
+          {error && (
+            <div className="p-4 rounded-lg glass-card border border-red-400 text-white">
+              <p>{error}</p>
+            </div>
+          )}
+          
+          {success && (
+            <div className="p-4 rounded-lg glass-card border border-green-400 text-white">
+              <p>{success}</p>
+            </div>
+          )}
+        </form>
+      </div>
+    );
+  };
+
+  // Request Processing Modal
+  const renderModal = () => {
+    if (!showModal) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
+        <div onClick={(e) => e.stopPropagation()} className="glass-card max-w-lg w-full mx-4 p-6 rounded-xl relative">
+          <h3 className="text-xl font-bold text-white mb-4">
+            {processingType === 'approve' ? 'Approve Request' : 'Reject Request'}
+          </h3>
+          
+          {selectedRequest && (
+            <div className="mb-4">
+              <p className="text-white/80 mb-1">
+                <span className="font-medium">Exam:</span> {selectedRequest.examName}
+              </p>
+              <p className="text-white/80">
+                <span className="font-medium">Institute:</span> {selectedRequest.institute?.name || 'Unknown'}
+              </p>
+            </div>
+          )}
+          
+          <div className="mb-4">
+            <label htmlFor="adminComment" className="block text-sm font-medium text-white/80 mb-1">
+              Comment
+            </label>
+            <textarea
+              id="adminComment"
+              value={adminComment}
+              onChange={(e) => setAdminComment(e.target.value)}
+              placeholder="Add a comment (optional)"
+              className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50"
+              rows="3"
+            />
+          </div>
+          
+          {processingStatus && (
+            <div className="mb-4 p-3 glass-light rounded-lg">
+              <p className="text-white/80 flex items-center">
+                <span className="mr-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                </span>
+                {processingStatus}
+              </p>
+            </div>
+          )}
+          
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={() => {
+                setShowModal(false);
+                setSelectedRequest(null);
+                setAdminComment('');
+                setProcessingType(null);
+              }}
+              className="glass px-4 py-2 rounded-lg text-white"
+              disabled={actionLoading}
+            >
+              Cancel
             </button>
             <button
-              onClick={() => handleTabSwitch('users')}
-              className={`px-3 sm:px-4 py-2 font-medium transition-none text-sm sm:text-base ${
-                activeTab === 'users'
-                  ? isDarkMode
-                    ? 'text-violet-400 border-b-2 border-violet-400'
-                    : 'text-violet-600 border-b-2 border-violet-600'
-                  : isDarkMode
-                  ? 'text-gray-400 hover:text-gray-300'
-                  : 'text-gray-500 hover:text-gray-700'
+              onClick={handleRequestStatusUpdate}
+              disabled={actionLoading}
+              className={`glass-button px-4 py-2 rounded-lg text-white ${
+                actionLoading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              Manage Users
+              {actionLoading ? (
+                <span className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </span>
+              ) : (
+                processingType === 'approve' ? 'Approve' : 'Reject'
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <ScreenWrapper>
+      <div className="max-w-7xl mx-auto pb-12 px-4 pt-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">
+            Admin Dashboard
+          </h1>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleRefresh}
+              className="glass p-2.5 rounded-full text-white hover:text-white/80 transition-colors"
+              title="Refresh"
+              disabled={isRefreshing}
+            >
+              <FaSync className={isRefreshing ? "animate-spin" : ""} />
             </button>
           </div>
         </div>
 
-        {activeTab === 'dashboard' ? (
-          <div className={`rounded-lg shadow-md overflow-hidden relative z-0 mt-4 ${
-            isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-          }`}>
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className={`text-2xl font-bold ${
-                isDarkMode ? 'text-white border-gray-700' : 'text-gray-900 border-gray-200'
-              }`}>
-                Exam Requests
-              </h2>
+        {/* Tabs Navigation */}
+        <div className="glass-card rounded-xl overflow-hidden mb-8">
+          <div className="border-b border-white/10">
+            <nav className="flex">
               <button
-                onClick={refreshRequests}
-                disabled={isRefreshing}
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  isDarkMode 
-                    ? 'bg-[#2a2f3e] hover:bg-[#3a3f4e] text-gray-300' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                } ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                title="Refresh requests"
+                onClick={() => handleTabSwitch('dashboard')}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === 'dashboard'
+                    ? 'text-white border-b-2 border-violet-500'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
               >
-                <FaSync className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Dashboard
               </button>
-            </div>
-            
-            {loading ? (
-              <div className="flex justify-center items-center p-8">
-                <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${
-                  isDarkMode ? 'border-violet-400' : 'border-violet-600'
-                }`}></div>
-              </div>
-            ) : error ? (
-              <div className="text-red-500 p-6">{error}</div>
-            ) : requests.length === 0 ? (
-              <div className={`text-center p-6 ${
-                isDarkMode ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                No pending requests
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className={`${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'}`}>
-                    <tr>
-                      {['Exam Name', 'Institute', 'Status', 'Questions', 'Date', 'Actions'].map((header) => (
-                        <th
-                          key={header}
-                          className={`px-3 sm:px-6 py-3 text-left text-xs sm:text-sm font-medium uppercase tracking-wider whitespace-nowrap ${
-                            isDarkMode ? 'text-gray-300' : 'text-gray-500'
-                          }`}
-                        >
-                          {header}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${
-                    isDarkMode ? 'divide-gray-700 text-gray-300' : 'divide-gray-200'
-                  }`}>
-                    {requests.map((request) => (
-                      <tr key={request._id} className={
-                        isDarkMode 
-                          ? 'hover:bg-[#2a2f3e] text-gray-200' 
-                          : 'hover:bg-gray-50'
-                      }>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          <span className={isDarkMode ? 'text-gray-200' : 'text-gray-900'}>
-                            {request.examName}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          <span className={isDarkMode ? 'text-gray-200' : 'text-gray-900'}>
-                            {request.institute?.name}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            request.status === 'pending'
-                              ? isDarkMode 
-                                ? 'bg-yellow-900 text-yellow-200' 
-                                : 'bg-yellow-100 text-yellow-800'
-                              : request.status === 'approved'
-                              ? isDarkMode 
-                                ? 'bg-green-900 text-green-200' 
-                                : 'bg-green-100 text-green-800'
-                              : isDarkMode 
-                                ? 'bg-red-900 text-red-200' 
-                                : 'bg-red-100 text-red-800'
-                          }`}>
-                            {request.status}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          <span className={isDarkMode ? 'text-gray-200' : 'text-gray-900'}>
-                            {request.totalQuestions}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          <span className={isDarkMode ? 'text-gray-200' : 'text-gray-900'}>
-                            {new Date(request.createdAt).toLocaleDateString()}
-                          </span>
-                        </td>
-                        <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm whitespace-nowrap">
-                          {request.status === 'pending' && (
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleApprove(request)}
-                                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleReject(request)}
-                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 h-auto lg:h-[calc(100vh-200px)]">
-            {/* Create User Form - Fixed width */}
-            <div className="w-full lg:w-[400px] flex-shrink-0 h-full">
-              <div className={`rounded-lg shadow-md ${
-                isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-              } h-full`}>
-                <div className="p-3 sm:p-4 lg:p-6 h-full">
-                  <h2 className={`text-lg sm:text-xl font-semibold mb-4 sm:mb-6 ${
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  }`}>Create New User</h2>
-                  <AdminUserCreate onUserCreated={fetchUsers} />
-                </div>
-              </div>
-            </div>
-
-            {/* Users Table - Fixed height and scrollable */}
-            <div className="flex-1 h-full min-w-0">
-              <div className={`rounded-lg shadow-md ${
-                isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-              } h-full flex flex-col`}>
-                <div className="p-4 lg:p-6 flex flex-col h-[calc(100vh-200px)] sm:h-full">
-                  {/* Header section */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <h2 className={`text-xl font-semibold ${
-                        isDarkMode ? 'text-white' : 'text-gray-900'
-                      }`}>
-                        User List
-                      </h2>
-                      <button
-                        onClick={handleUserListRefresh}
-                        disabled={isRefreshing}
-                        className={`p-2 rounded-lg transition-all duration-200 flex-shrink-0 ${
-                          isDarkMode 
-                            ? 'bg-[#2a2f3e] hover:bg-[#3a3f4e] text-gray-300' 
-                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-                        } ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        title="Refresh user list"
-                      >
-                        <FaSync className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                      </button>
-                    </div>
-                    {/* Search input */}
-                    <div className="relative w-full sm:w-auto flex-shrink-0">
-                      <input
-                        type="text"
-                        placeholder="Search by email or type..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className={`pl-10 pr-4 py-2 rounded-lg w-full sm:w-72 ${
-                          isDarkMode 
-                            ? 'bg-[#2a2f3e] text-white border-gray-700' 
-                            : 'bg-white text-gray-900 border-gray-300'
-                        } border focus:outline-none focus:ring-1 focus:ring-violet-500`}
-                      />
-                      <FaSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
-                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                      }`} />
-                    </div>
-                  </div>
-
-                  {/* Table container with fixed height and scrolling */}
-                  <div className="flex-1 overflow-hidden h-full -mx-4 sm:mx-0">
-                    {userLoading ? (
-                      <div className="flex justify-center items-center h-full">
-                        <Loader />
-                      </div>
-                    ) : userError ? (
-                      <div className="text-red-500 p-4">{userError}</div>
-                    ) : (
-                      <div className="h-full overflow-auto">
-                        <div className="inline-block min-w-full align-middle">
-                          <table className="min-w-full divide-y divide-gray-200">
-                            <thead className={`${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'} sticky top-0 z-10`}>
-                              <tr>
-                                {['Name', 'Email', 'Type', 'Status', 'Actions'].map((header) => (
-                                  <th 
-                                    key={header} 
-                                    className={`px-4 py-3 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap ${
-                                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                    }`}
-                                  >
-                                    {header}
-                                  </th>
-                                ))}
-                              </tr>
-                            </thead>
-                            <tbody className={`divide-y ${
-                              isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
-                            }`}>
-                              {filteredUsers.map((user) => (
-                                <tr key={user._id} className={`${
-                                  isDarkMode 
-                                    ? 'hover:bg-[#2a2f3e] text-gray-200' 
-                                    : 'hover:bg-gray-50 text-gray-900'
-                                }`}>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm">{user.name}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm">{user.email}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap text-sm capitalize">{user.userType}</td>
-                                  <td className="px-4 py-3 whitespace-nowrap">
-                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                      user.isActive
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-red-500 text-white'
-                                    }`}>
-                                      {user.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                  </td>
-                                  <td className="px-4 py-3 whitespace-nowrap">
-                                    <button
-                                      onClick={() => handleDeleteUser(user._id)}
-                                      className={`p-1.5 rounded-full ${
-                                        isDarkMode 
-                                          ? 'hover:bg-[#3a3f4e] text-red-400' 
-                                          : 'hover:bg-gray-100 text-red-500'
-                                      }`}
-                                    >
-                                      <FaTrash className="w-4 h-4" />
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showModal && (
-          <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-              {/* Overlay */}
-              <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                <div className={`absolute inset-0 ${isDarkMode ? 'bg-black' : 'bg-gray-500'} opacity-75`}></div>
-              </div>
-
-              {/* Modal */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className={`${
-                  isDarkMode 
-                    ? 'bg-[#1a1f2e] text-white border border-gray-700' 
-                    : 'bg-white text-gray-900 border border-gray-300'
-                } rounded-lg w-[95%] sm:max-w-md shadow-xl relative mx-auto`}
+              <button
+                onClick={() => handleTabSwitch('users')}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === 'users'
+                    ? 'text-white border-b-2 border-violet-500'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
               >
-                <div className={`flex justify-between items-center p-6 border-b ${
-                  isDarkMode ? 'border-gray-700' : 'border-gray-300'
-                }`}>
-                  <h3 className="text-lg font-medium">
-                    {processingType === 'approve' ? 'Approve' : 'Reject'} Request
-                  </h3>
-                  {!actionLoading && (
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="text-gray-400 hover:text-gray-500"
-                    >
-                      <span className="sr-only">Close</span>
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-
-                <div className="p-6">
-                  <div className="mb-4">
-                    <label className={`block text-sm font-medium mb-1 ${
-                      isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      Admin Comment
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={adminComment}
-                      onChange={(e) => setAdminComment(e.target.value)}
-                      disabled={actionLoading}
-                      className={`w-full px-3 py-2 rounded-lg shadow-sm text-sm sm:text-base ${
-                        isDarkMode 
-                          ? 'bg-[#2a2f3e] border-gray-700 text-white' 
-                          : 'bg-white border-gray-300 text-gray-900'
-                      }`}
-                    />
-                  </div>
-
-                  {actionLoading && (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-violet-500"></div>
-                      <span>{processingStatus}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={`px-6 py-4 flex justify-end space-x-3 ${
-                  isDarkMode ? 'bg-[#2a2f3e]' : 'bg-gray-50'
-                }`}>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    disabled={actionLoading}
-                    className={`px-4 py-2 rounded-lg ${
-                      isDarkMode 
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleRequestStatusUpdate}
-                    disabled={actionLoading}
-                    className={`px-4 py-2 rounded-lg ${
-                      isDarkMode 
-                        ? 'bg-violet-600 text-white hover:bg-violet-700' 
-                        : 'bg-violet-500 text-white hover:bg-violet-600'
-                    }`}
-                  >
-                    {processingType === 'approve' ? 'Approve' : 'Reject'}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
+                Users
+              </button>
+              <button
+                onClick={() => handleTabSwitch('create')}
+                className={`px-6 py-3 text-sm font-medium ${
+                  activeTab === 'create'
+                    ? 'text-white border-b-2 border-violet-500'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
+              >
+                Create User
+              </button>
+            </nav>
           </div>
-        )}
+
+          <div className="p-6">
+            {activeTab === 'dashboard' && renderDashboard()}
+            {activeTab === 'users' && renderUsersTab()}
+            {activeTab === 'create' && renderCreateUserTab()}
+          </div>
+        </div>
       </div>
-    </div>
+      
+      {/* Modal for request processing */}
+      {renderModal()}
+    </ScreenWrapper>
   );
 };
 

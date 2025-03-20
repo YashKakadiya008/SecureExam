@@ -5,6 +5,7 @@ import config from '../config/config.js';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '../utils/toast';
 import { FaExpand, FaCompress, FaSync } from 'react-icons/fa';
+import ScreenWrapper from '../components/ScreenWrapper';
 
 const StudentDashboard = () => {
   const { isDarkMode } = useTheme();
@@ -132,19 +133,19 @@ const StudentDashboard = () => {
   const renderStartExam = () => {
     return (
       <div className="mt-8">
-        <h2 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+        <h2 className="text-2xl font-bold mb-6 text-white">
           Start Exam
         </h2>
         
         <div className="max-w-md mx-auto space-y-6">
           {error && (
-            <div className="p-4 rounded-lg bg-red-100 border border-red-400 text-red-700">
+            <div className="p-4 rounded-lg glass-card border border-red-400 text-white">
               <p>{error}</p>
             </div>
           )}
 
           <div>
-            <p className={`text-lg mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            <p className="text-lg mb-4 text-white/70">
               Enter the exam code provided by your institute to begin
             </p>
 
@@ -152,9 +153,7 @@ const StudentDashboard = () => {
               <div>
                 <label 
                   htmlFor="examCode" 
-                  className={`block text-sm font-medium mb-2 ${
-                    isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                  }`}
+                  className="block text-sm font-medium mb-2 text-white/80"
                 >
                   Exam Code
                 </label>
@@ -167,22 +166,18 @@ const StudentDashboard = () => {
                     setError(null); // Clear error when input changes
                   }}
                   placeholder="Enter your exam code"
-                  className={`w-full px-4 py-3 rounded-lg ${
-                    isDarkMode 
-                      ? 'bg-gray-800 text-white border-gray-700 focus:border-violet-500' 
-                      : 'bg-white text-gray-900 border-gray-300 focus:border-violet-500'
-                  } border focus:ring-2 focus:ring-violet-200 transition-colors`}
+                  className="glass w-full px-4 py-3 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-violet-500 transition-colors"
                 />
               </div>
 
               <button
                 onClick={handleStartExam}
                 disabled={!ipfsHash.trim() || loading}
-                className={`w-full py-3 px-4 rounded-lg transition-colors ${
+                className={`glass-button w-full py-3 px-4 rounded-lg text-white font-medium ${
                   !ipfsHash.trim() || loading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-violet-600 hover:bg-violet-700'
-                } text-white font-medium`}
+                    ? 'opacity-50 cursor-not-allowed'
+                    : ''
+                }`}
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
@@ -197,17 +192,11 @@ const StudentDashboard = () => {
           </div>
 
           {/* Important Instructions */}
-          <div className={`mt-8 p-4 rounded-lg ${
-            isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-          }`}>
-            <h3 className={`text-lg font-medium mb-3 ${
-              isDarkMode ? 'text-gray-200' : 'text-gray-900'
-            }`}>
+          <div className="glass-card mt-8 p-4 rounded-lg">
+            <h3 className="text-lg font-medium mb-3 text-white">
               Important Instructions
             </h3>
-            <ul className={`space-y-2 ${
-              isDarkMode ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <ul className="space-y-2 text-white/70">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
                 Make sure you have a stable internet connection
@@ -911,149 +900,62 @@ const StudentDashboard = () => {
   }, []); // Empty dependency array to run only on mount
 
   return (
-    <div className={`${isDarkMode ? 'bg-[#0A0F1C]' : 'bg-gray-50'} min-h-screen pt-16 md:pt-24`}>
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-          {/* Sidebar Navigation - Mobile Version */}
+    <ScreenWrapper>
+      <div className="max-w-6xl mx-auto pb-12 px-4 pt-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-white">
+            Student Dashboard
+          </h1>
           {!isExamMode && (
-            <div className="md:hidden mb-4 sticky top-24 z-30 bg-inherit">
-              <div className={`${isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'} rounded-xl shadow-lg p-4`}>
-                <nav className="flex gap-2 overflow-x-auto">
-                  <button
-                    onClick={() => handleTabSwitch('start')}
-                    className={`whitespace-nowrap px-4 py-2 rounded-lg transition-all duration-200 ${
-                      activeTab === 'start'
-                        ? 'bg-violet-600 text-white font-medium'
-                        : isDarkMode
-                        ? 'text-gray-300 hover:bg-gray-800'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    Start Exam
-                  </button>
-                  <button
-                    onClick={() => handleTabSwitch('exam')}
-                    className={`whitespace-nowrap px-4 py-2 rounded-lg transition-all duration-200 ${
-                      activeTab === 'exam'
-                        ? 'bg-violet-600 text-white font-medium'
-                        : isDarkMode
-                        ? 'text-gray-300 hover:bg-gray-800'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    Exam
-                  </button>
-                  <button
-                    onClick={() => handleTabSwitch('results')}
-                    className={`whitespace-nowrap px-4 py-2 rounded-lg transition-all duration-200 ${
-                      activeTab === 'results'
-                        ? 'bg-violet-600 text-white font-medium'
-                        : isDarkMode
-                        ? 'text-gray-300 hover:bg-gray-800'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    Results
-                  </button>
-                </nav>
-              </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => fetchResults()}
+                className="glass p-2.5 rounded-full text-white hover:text-white/80 transition-colors"
+                title="Refresh"
+              >
+                <FaSync className={loading ? "animate-spin" : ""} />
+              </button>
             </div>
           )}
+        </div>
 
-          {/* Desktop Sidebar */}
-          <div className={`hidden md:w-1/4 md:block ${isExamMode ? 'md:hidden' : ''}`}>
-            <div className={`${
-              isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-            } rounded-xl shadow-lg p-5 sticky top-24`}>
-              <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Navigation
-              </h2>
-              <nav className="space-y-2">
+        {!isExamMode && (
+          <div className="glass-card rounded-xl overflow-hidden mb-8">
+            <div className="border-b border-white/10">
+              <nav className="flex">
                 <button
                   onClick={() => handleTabSwitch('start')}
-                  disabled={isExamMode}
-                  className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-left ${
+                  className={`px-6 py-3 text-sm font-medium ${
                     activeTab === 'start'
-                      ? 'bg-violet-600 text-white font-medium'
-                      : isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-800'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  } ${isExamMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      ? 'text-white border-b-2 border-violet-500'
+                      : 'text-white/60 hover:text-white/80'
+                  }`}
                 >
                   Start Exam
                 </button>
                 <button
-                  onClick={() => handleTabSwitch('exam')}
-                  className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-left ${
-                    activeTab === 'exam'
-                      ? 'bg-violet-600 text-white font-medium'
-                      : isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-800'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Exam
-                </button>
-                <button
                   onClick={() => handleTabSwitch('results')}
-                  disabled={isExamMode}
-                  className={`w-full px-4 py-3 rounded-lg transition-all duration-200 text-left ${
+                  className={`px-6 py-3 text-sm font-medium ${
                     activeTab === 'results'
-                      ? 'bg-violet-600 text-white font-medium'
-                      : isDarkMode
-                      ? 'text-gray-300 hover:bg-gray-800'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'text-white border-b-2 border-violet-500'
+                      : 'text-white/60 hover:text-white/80'
                   }`}
                 >
-                  Results
+                  My Results
                 </button>
               </nav>
             </div>
-          </div>
 
-          {/* Main Content Area */}
-          <div className={`w-full mt-2 md:mt-0 ${!isExamMode ? 'md:w-3/4' : 'md:w-full'}`}>
-            <div className={`${
-              isDarkMode ? 'bg-[#1a1f2e]' : 'bg-white'
-            } rounded-xl shadow-lg p-4 md:p-6`}>
-              {/* Exam Mode Warning */}
-              {isExamMode && (
-                <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">Exam in Progress</p>
-                      <p className="text-sm mt-1">Please do not leave this page or exit fullscreen mode.</p>
-                    </div>
-                    <button
-                      onClick={isFullscreen ? exitFullscreen : enterFullscreen}
-                      className="p-2 hover:bg-yellow-200 rounded-lg transition-colors"
-                      title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-                    >
-                      {isFullscreen ? <FaCompress size={20} /> : <FaExpand size={20} />}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Dynamic Content */}
-              {activeTab === 'start' && !isExamMode && renderStartExam()}
-              {activeTab === 'exam' && renderExam()}
-              {activeTab === 'results' && !isExamMode && renderResultsTab()}
+            <div className="p-6">
+              {activeTab === 'start' && renderStartExam()}
+              {activeTab === 'results' && renderResultsTab()}
             </div>
           </div>
-        </div>
+        )}
 
+        {/* Exam Mode Content (will be implemented later) */}
       </div>
-
-      {/* Warning Banner */}
-      {isExamMode && (
-        <div className="fixed bottom-0 left-0 right-0 bg-red-600 text-white py-2 md:py-3 px-4 text-center z-50">
-          <p className="text-xs md:text-sm font-medium">
-            Warning: Leaving this page will automatically submit your exam
-          </p>
-        </div>
-      )}
-    </div>
+    </ScreenWrapper>
   );
 };
 
