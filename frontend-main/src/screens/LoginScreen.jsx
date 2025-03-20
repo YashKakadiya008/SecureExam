@@ -45,11 +45,22 @@ const LoginScreen = () => {
   };
 
   const submitHandler = async (e) => {
-    //will do logic later
+    e.preventDefault();
+    try {
+      const res = await login({ email, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      navigate('/');
+      showToast.success('Login successful');
+    } catch (err) {
+      showToast.error(err?.data?.message || 'Login failed');
+    }
   };
 
   const handleGoogleSignIn = () => {
-    //will do logic later
+    const authUrl = process.env.NODE_ENV === 'production'
+      ? 'https://backdeploy-9bze.onrender.com/api/users/auth/google'
+      : 'http://localhost:5000/api/users/auth/google';
+    window.location.href = authUrl;
   };
 
   return (
