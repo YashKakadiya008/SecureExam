@@ -116,11 +116,43 @@ const RegisterScreen = () => {
   };
 
   const submitHandler = async (e) => {
-    //will do logic later
+    e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      showToast.error('Passwords do not match');
+      return;
+    }
+
+    try {
+      const res = await register({ name, email, password }).unwrap();
+      dispatch(setCredentials({ ...res }));
+      showToast.success('Registration successful');
+      navigate('/');
+    } catch (err) {
+      // Show the specific error message from the backend
+      if (err?.data?.message) {
+        // Server error message (e.g., "User already exists")
+        showToast.error(err.data.message);
+      } else if (!navigator.onLine) {
+        showToast.error('No internet connection. Please check your network.');
+      } else if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        showToast.error('Unable to connect to the server. Please try again later.');
+      } else {
+        showToast.error('User already exists');
+      }
+      console.error('Registration error:', err); // For debugging
+    }
   };
 
   const handleGoogleSignIn = () => {
-    //will do logic later
+    const authUrl = `${config.API_BASE_URL}/api/users/auth/google`;
+    // Ensure HTTPS in production and correct redirect
+    if (process.env.NODE_ENV === 'production') {
+      const redirectUrl = `${config.FRONTEND_URL}/register`;
+      window.location.href = `${authUrl}?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+    } else {
+      window.location.href = authUrl;
+    }
   };
 
   return (
